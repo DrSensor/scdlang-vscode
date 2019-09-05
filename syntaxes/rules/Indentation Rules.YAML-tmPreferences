@@ -1,0 +1,8 @@
+# [PackageDev] target_format: plist, ext: tmPreferences
+---
+scope: source
+settings:
+  decreaseIndentPattern: ^(.*\*/)?\s*\}[;\s]*$
+  increaseIndentPattern: ^.*(\{[^}"']*)$
+  disableIndentNextLinePattern: ^\s*\{[\]})]*\s*$
+  indentParens: true

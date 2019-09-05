@@ -25,6 +25,11 @@
         }]
 		},
 		"devDependencies": {
-			"js-yaml": "3"
+			"js-yaml": "3",
+			"plist": "3",
+			"eslint": "6",
+			"typescript": "3.5",
+			"@typescript-eslint/eslint-plugin": "2",
+			"@typescript-eslint/parser": "2"
 		}
 }

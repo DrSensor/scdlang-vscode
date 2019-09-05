@@ -1,4 +1,10 @@
 {
+	"eslint.packageManager": "pnpm",
+	"eslint.autoFixOnSave": true,
+	"eslint.alwaysShowStatus": true,
+	"eslint.workingDirectories": [
+		"./scripts"
+	],
 	"files.associations": {
 		"*.YAML-tmPreferences": "yaml",
 	},
