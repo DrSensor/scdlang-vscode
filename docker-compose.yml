@@ -1,0 +1,19 @@
+# docker run --detach --name=syntect_server -p 9238:9238 sourcegraph/syntect_server
+# docker pull exadra37/sublime-text-3
+# docker pull jamesnetherton/docker-atom-editor
+
+# vscode -> sublime -> syntect
+# .tmLanguage -> .sublime-syntax -> .packdump
+
+version: "3"
+services:
+
+  # The service name is same as `subl --command <name>` for converting .tmLanguage
+  convert_syntax:
+    build:
+      context: docker
+      dockerfile: sublime.dockerfile
+    entrypoint: [sublime_syntax_convertor]
+    command: [dist/Scdlang.tmLanguage]
+    volumes:
+      - ./dist:/dist:rw

@@ -5,6 +5,7 @@
 
 ```sh
 mkdir -p dist/rules
+docker-compose up --no-start
 ```
 
 ## build
@@ -27,10 +28,26 @@ for rule in syntaxes/rules/*.YAML-tmPreferences; do
 done
 ```
 
+### build sublime
+> Generate sublime-syntax grammar
+
+```sh
+[ -f dist/Scdlang.tmLanguage ] || mask build textmate
+docker-compose run --rm --user $(id --user) convert_syntax
+# ./scripts/automate-sublime.sh dist/Scdlang.tmLanguage dist/Scdlang.sublime-syntax
+```
+
 ### build clear
 > Remove all artifacts
 
 ```sh
 rm dist/**/*
 rm dist/Scdlang.*
+```
+
+## cleanup
+> Cleanup all build tools 🧹
+
+```sh
+docker-compose down -v --rmi all --remove-orphans
 ```
