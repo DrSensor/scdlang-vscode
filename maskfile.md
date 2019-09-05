@@ -1,10 +1,19 @@
 # Task runner for developing Scdlang syntax highlighting
 
+## run
+### run syntect (file)
+> Print syntect highlighting result
+
+```sh
+./target/release/examples/print $file dist/newlines.packdump
+```
+
 ## prepare
 > Prepare the ingredients for various tasks 🍳
 
 ```sh
 mkdir -p dist/rules
+cargo build --release --examples
 docker-compose up --no-start
 ```
 
@@ -37,12 +46,22 @@ docker-compose run --rm --user $(id --user) convert_syntax
 # ./scripts/automate-sublime.sh dist/Scdlang.tmLanguage dist/Scdlang.sublime-syntax
 ```
 
+### build syntect
+> Generate dump file for syntect
+
+```sh
+[ "$(ls -A dist/rules)" ] || mask build textmate
+[ -f dist/Scdlang.sublime-syntax ] || mask build sublime
+docker-compose run --rm --user $(id --user) packdump
+```
+
 ### build clear
 > Remove all artifacts
 
 ```sh
 rm dist/**/*
 rm dist/Scdlang.*
+rm dist/*.*dump
 ```
 
 ## cleanup
@@ -50,4 +69,5 @@ rm dist/Scdlang.*
 
 ```sh
 docker-compose down -v --rmi all --remove-orphans
+cargo clean
 ```

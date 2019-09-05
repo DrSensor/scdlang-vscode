@@ -1,4 +1,6 @@
 *
+!target/debug/examples/*
+!target/release/examples/*
 !dist/*
 !LICENSE
 !*.md

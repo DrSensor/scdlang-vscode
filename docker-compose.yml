@@ -8,6 +8,19 @@
 version: "3"
 services:
 
+  packdump:
+    depends_on: [convert_syntax]
+    build:
+      context: docker
+      dockerfile: syntect.dockerfile
+    entrypoint: [syntect, synpack, Packages]
+    command: [dist/newlines.packdump, dist/nonewlines.packdump, dist/metadata.packdump, Rules]
+    volumes:
+      - ./dist:/dist:rw
+      - ./dist/rules:/Rules:ro
+      - ./dist/Scdlang.sublime-syntax:/Packages/Scdlang/Scdlang.sublime-syntax:ro
+      - ./target/release/examples:/bin:ro
+  
   # The service name is same as `subl --command <name>` for converting .tmLanguage
   convert_syntax:
     build:
