@@ -47,7 +47,7 @@ services:
     image: dhall
     network_mode: host
     entrypoint: [dhall-to-json]
-    command: [--file, syntaxes/Scdlang.dhall, --pretty, --output, dist/Scdlang.tmLanguage.json]
+    command: [--file, syntaxes/Scdlang.dhall, --pretty, --output, dist/Scdlang.tmLanguage.json, --omitEmpty]
     volumes:
       - ./dist:/dist:rw
       - ./syntaxes:/syntaxes:ro

@@ -1,7 +1,29 @@
 # Task runner for developing Scdlang syntax highlighting
 
-## run
-### run bat (file)
+## view
+
+### view dhall (file)
+> Print file.dhall in flat format
+
+This will print post-processed *.dhall file without variable and function
+
+```sh
+if which dhall 2>/dev/null; then
+  dhall --file $file
+else
+  docker-compose run --rm --user $(id --user) dhall --file $file
+fi
+```
+
+### view bat (file)
+> Print syntect highlighting result
+
+```sh
+cp dist/syntect/*.bin $HOME/.cache/bat/
+./scripts/print.sh $file
+```
+
+### view bat (file)
 > Print syntect highlighting result
 
 ```sh
@@ -12,10 +34,22 @@
 > Prepare the ingredients for various tasks 🍳
 
 ```sh
+mask prepare dist
+mask prepare docker
+```
+
+## prepare dist
+```sh
 mkdir -p dist/rules
 mkdir -p dist/syntect/{syntaxes,themes}
+```
+
+## prepare docker
+```sh
 docker-compose up --no-start
 ```
+
+<!--TODO: ## prepare import @wait-for https://github.com/dhall-lang/dhall-haskell/issues/1356-->
 
 ## build
 > Please run `prepare build` before running this tasks ⚠
@@ -27,7 +61,7 @@ docker-compose up --no-start
 run_and_inspect() { $1 && ./scripts/print.sh dist/Scdlang.tmLanguage.json; }
 
 if which dhall-to-json 2>/dev/null; then
-  run_and_inspect "dhall-to-json --file syntaxes/Scdlang.dhall --pretty --output dist/Scdlang.tmLanguage.json"
+  run_and_inspect "dhall-to-json --file syntaxes/Scdlang.dhall --pretty --output dist/Scdlang.tmLanguage.json --omitEmpty"
 else
   run_and_inspect "docker-compose run --rm --user $(id --user) dhall-json"
 fi
