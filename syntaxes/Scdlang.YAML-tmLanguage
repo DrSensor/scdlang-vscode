@@ -1,0 +1,29 @@
+# [PackageDev] target_format: plist, ext: tmLanguage
+---
+name: Scdlang
+scopeName: source.scdlang
+fileTypes: [scl, scdl, fsm, hfsm, statecharts]
+## References
+# https://gist.github.com/DamnedScholar/622926bcd222eb1ddc483d12103fd315 (cheatsheet)
+# https://gist.github.com/Aerijo/b8c82d647db783187804e86fa0a604a1 (Guide for writing textmate grammar)
+
+variables:
+  stateName: ''
+
+patterns:
+  - include: '#keywords'
+  - include: '#strings'
+
+repository:
+  keywords:
+    patterns:
+    - name: keyword.control.scdlang
+      match: \b(if|while|for|return|state|event)\b
+
+  strings:
+    name: string.quoted.double.scdlang
+    begin: '"'
+    end: '"'
+    patterns:
+    - name: constant.character.escape.scdlang
+      match: \\.

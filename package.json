@@ -1,0 +1,30 @@
+{
+    "name": "scdlang",
+    "displayName": "scdlang-vscode",
+    "description": "Language support for Scdlang",
+    "version": "0.0.1",
+    "engines": {
+				"vscode": "^1.37",
+				"deno": "^0.16",
+				"node": "^12"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "scdlang",
+            "aliases": ["Scdlang", "scdlang"],
+            "extensions": [".scl",".scdl",".fsm",".hfsm",".statecharts"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "scdlang",
+            "scopeName": "source.scdlang",
+            "path": "./dist/Scdlang.tmLanguage.json"
+        }]
+		},
+		"devDependencies": {
+			"js-yaml": "3"
+		}
+}
