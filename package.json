@@ -4,32 +4,45 @@
     "description": "Language support for Scdlang",
     "version": "0.0.1",
     "engines": {
-				"vscode": "^1.37",
-				"deno": "^0.16",
-				"node": "^12"
+        "vscode": "^1.37",
+        "deno": "^0.16",
+        "node": "^12"
     },
     "categories": [
         "Programming Languages"
     ],
     "contributes": {
-        "languages": [{
-            "id": "scdlang",
-            "aliases": ["Scdlang", "scdlang"],
-            "extensions": [".scl",".scdl",".fsm",".hfsm",".statecharts"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "scdlang",
-            "scopeName": "source.scdlang",
-            "path": "./dist/Scdlang.tmLanguage.json"
-        }]
-		},
-		"devDependencies": {
-			"js-yaml": "3",
-			"plist": "3",
-			"eslint": "6",
-			"typescript": "3.5",
-			"@typescript-eslint/eslint-plugin": "2",
-			"@typescript-eslint/parser": "2"
-		}
+        "languages": [
+            {
+                "id": "scdlang",
+                "aliases": [
+                    "Scdlang",
+                    "scdlang"
+                ],
+                "extensions": [
+                    ".scl",
+                    ".scdl",
+                    ".fsm",
+                    ".hfsm",
+                    ".statecharts"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "scdlang",
+                "scopeName": "source.scdlang",
+                "path": "./dist/Scdlang.tmLanguage.json"
+            }
+        ]
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "2",
+        "@typescript-eslint/parser": "2",
+        "eslint": "6",
+        "js-yaml": "^3.13.1",
+        "plist": "3",
+        "typescript": "3.5"
+    }
 }
