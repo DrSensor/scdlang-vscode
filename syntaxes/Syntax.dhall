@@ -26,11 +26,13 @@ in {
       External = Scope/from ["meta.event.external", "entity.name.class"],
       Loop     = Scope/from ["meta.event.loop",     "storage.type.class"]
     } type,
-    guard = Scope/from ["meta.guard", "entity.name.function"],
+    guard  = Scope/from ["meta.guard",  "entity.other.inherited-class"],
+    action = Scope/from ["meta.action", "support.function"],
 
     operator = {
       arrow = Scope/from ["meta.arrow", "keyword.operator"],
-      at    = Scope/from ["meta.at",    "keyword.operator"]
+      at    = Scope/from ["meta.at",    "keyword.operator"],
+      pipe  = Scope/from ["meta.pipe",  "keyword.operator"]
     }
   },
 

@@ -1,8 +1,6 @@
 let _ = {=}
-  let Text/concatSep = https://prelude.dhall-lang.org/Text/concatSep
   let Text/concatMapSep = https://prelude.dhall-lang.org/Text/concatMapSep
   let Text/defaultMap = https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelude/Text/defaultMap
-  let Text/default = https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelude/Text/default
   let List/map = https://prelude.dhall-lang.org/List/map
   let List/filter = https://prelude.dhall-lang.org/List/filter
   let not = https://prelude.dhall-lang.org/Bool/not

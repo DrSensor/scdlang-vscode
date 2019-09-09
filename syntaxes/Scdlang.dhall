@@ -1,7 +1,6 @@
 let _ = {=}
   let Map = https://prelude.dhall-lang.org/Map/Type
   let Map/keys = https://prelude.dhall-lang.org/Map/keys
-  let List/map = https://prelude.dhall-lang.org/List/map
 
 let Transition = ./Transition.dhall
 let Prelude = ./Prelude.dhall
@@ -15,7 +14,5 @@ in {
   scopeName = "source.scdlang",
   fileTypes = ["scl", "scdl", "fsm", "hfsm", "statecharts"],
   repository = Transition,
-  patterns =
-    let Transition = toMap Transition
-    in pattern.Include/from (keys pattern.LineMatch Transition)
+  patterns = pattern.Include/from (keys pattern.LineMatch (toMap Transition))
 }
