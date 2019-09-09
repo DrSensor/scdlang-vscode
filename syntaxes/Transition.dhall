@@ -45,17 +45,18 @@ let action = [
   let action/optional = Pair/group/optional "\\s*" action
   let action/required = Pair/group/required "\\s*" action
 
-let internal-transition = λ(brackets: List Text) ->
+let internal-transition/withState = λ(withState: Bool) -> λ(brackets: List Text) ->
   let currentScope = if List/null Text brackets
     then Syntax.scope.state State.From
     else Syntax.scope.state State.Loop
+  let pairState = if withState then [Pair/required state currentScope] else List/empty Pair
   let bracket = {
     open = if Text/head/empty brackets
       then List/empty Pair else [Pair/required (Text/head brackets) "keyword.operator"],
-    close = if Text/last/empty brackets
+    close = if Natural/odd (List/length Text brackets)
       then List/empty Pair else [Pair/required (Text/last brackets) "keyword.operator"]
   } in λ(scope: Text) -> capture scope "\\s*"
-    ([Pair/required state currentScope] # bracket.open 
+    (pairState # bracket.open 
         # event/required Event.Internal
         # action/required
     # bracket.close)
@@ -82,6 +83,15 @@ let loop-transition = λ(arrow: Direction) -> λ(symbol: Text) -> λ(scope: Text
 let self-transition = λ(arrow: Direction) -> λ(symbol: Text) -> λ(scope: Text)
   -> transition-from (None Text) Event.Loop symbol arrow scope
 
+let internal-transition/currentState = λ(currentState: Bool) -> λ(scope: Text)
+  -> internal-transition/withState currentState (List/empty Text) scope
+
+let internal-transition/noTarget = λ(arrow: Text) -> λ(scope: Text)
+  -> internal-transition/withState False [arrow] scope
+
+let internal-transition/withTarget = λ(brackets: List Text) -> λ(scope: Text)
+  -> internal-transition/withState True brackets scope
+
 in {
   transition-into   = normal-transition Direction.Right "-+>"       "transition.normal",
   transition-from   = normal-transition Direction.Left  "<-+"       "transition.normal",
@@ -89,6 +99,8 @@ in {
   self-transition   = self-transition   Direction.Right "-+>>"      "transition.loop",
   loop-from         = loop-transition   Direction.Left  "<<-+|<-+<" "transition.loop",
   loop-into         = loop-transition   Direction.Right "-+>>"      "transition.loop",
-  state-internal-transition  = internal-transition (List/empty Text) "transition.internal",
-  parent-internal-transition = internal-transition ["<-+<", ">"]     "transition.internal"
+  state-internal-transition  = internal-transition/currentState True          "transition.internal",
+  parent-internal-transition = internal-transition/currentState False         "transition.internal",
+  skipper-transition         = internal-transition/withTarget   ["<-+<", ">"] "transition.internal",
+  root-internal-transition   = internal-transition/noTarget     "<-+<"        "transition.internal"
 }
