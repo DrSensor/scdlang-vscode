@@ -19,12 +19,13 @@ repository:
     - include: '#normal-transition'
     - include: '#toggle-transition'
     - include: '#loop-transition'
-  
+
   loop-transition:
     patterns:
     - include: '#loop-to'           # A ->> B | A >-> B
     - include: '#loop-from'         # B <<- A | B <-< A
     - include: '#self-transition'   # ->> B
+    - include: '#internal-transition'   # ->> B
 
   toggle-transition: # A <-> B
     match: ([A-Z]\w*)\s*(<-+>)\s*([A-Z]\w*)
@@ -47,7 +48,7 @@ repository:
     match: ([A-Z]\w*)\s*(-+>)\s*([A-Z]\w*)
     captures: 
       '0': { name: meta.transition.normal.scl }
-      '1': { name: entity.name.scl meta.state.from.scl }
+      '1': { name: entity.name.class.scl meta.state.from.scl }
       '2': { name: keyword.operator.scl meta.arrow.scl }
       '3': { name: entity.other.inherited-class.scl meta.state.into.scl }
 
@@ -55,7 +56,7 @@ repository:
     match: ([A-Z]\w*)\s*(<-+)\s*([A-Z]\w*)
     captures: 
       '0': { name: meta.transition.normal.scl }
-      '3': { name: entity.name.scl meta.state.from.scl }
+      '3': { name: entity.name.class.scl meta.state.from.scl }
       '2': { name: keyword.operator.scl meta.arrow.scl }
       '1': { name: entity.other.inherited-class.scl meta.state.into.scl }
 
@@ -63,7 +64,7 @@ repository:
     match: ([A-Z]\w*)\s*(-+>>|>-+>)\s*([A-Z]\w*)
     captures: 
       '0': { name: meta.transition.loop.scl }
-      '1': { name: entity.name.scl meta.state.from.scl }
+      '1': { name: entity.name.class.scl meta.state.from.scl }
       '2': { name: keyword.operator.scl meta.arrow.scl }
       '3': { name: entity.other.inherited-class.scl markup.italic.scl meta.state.into.scl }
 
@@ -71,7 +72,7 @@ repository:
     match: ([A-Z]\w*)\s*(<<-+|<-+<)\s*([A-Z]\w*)
     captures: 
       '0': { name: meta.transition.loop.scl }
-      '3': { name: entity.name.scl meta.state.from.scl }
+      '3': { name: entity.name.class.scl meta.state.from.scl }
       '2': { name: keyword.operator.scl meta.arrow.scl }
       '1': { name: entity.other.inherited-class.scl markup.italic.scl meta.state.into.scl }
 
@@ -83,6 +84,24 @@ repository:
         name: entity.other.inherited-class.scl markup.italic.scl
               meta.state.from.into.scl
       '1': { name: keyword.operator.scl meta.arrow.scl }
+
+  internal-transition:
+    patterns: 
+    - include: '#action'
+    - match: ([A-Z]\w*\s*)?(\@)\s*([A-Z]\w*)?(?:\[([a-z]\w*)\])?
+      captures:
+        '0': { name: meta.event.scl }
+        '1': { name: entity.name.class.scl meta.state.from.scl }
+        '2': { name: keyword.operator.scl meta.at.scl }   # @
+        '3': { name: entity.name.label.scl meta.event.trigger.scl }
+        '4': { name: entity.name.function.scl meta.event.guard.scl }
+  
+  action:
+    match: (\|>)\s*([a-z]\w*)
+    captures: 
+      '0': { name: meta.action.scl }
+      '1': { name: keyword.operator.scl meta.pipe.scl } # |>
+      '2': { name: entity.name.function.scl meta.action.scl }
   #endregion transition
 
   #region strings and template strings
