@@ -5,6 +5,7 @@ let Scope/from = Prelude.util.Scope/from
 
 let lang = Prelude.scopeLanguage
 let State = < From | Into | Loop >
+let Event = < Internal | External | Loop >
 
 in {
   naming = {
@@ -15,17 +16,26 @@ in {
   scope = {
     language = lang,
     state = λ(type: State) -> merge {
-      From = Scope/from ["meta.state.from", "entity.name.class"],
-      Into = Scope/from ["meta.state.into", "entity.other.inherited-class"],
-      Loop = Scope/from ["meta.state.into", "storage.type.inherited-class"]
+      From = Scope/from ["meta.state.from",      "entity.name.class"],
+      Into = Scope/from ["meta.state.into",      "entity.other.inherited-class"],
+      Loop = Scope/from ["meta.state.into.loop", "storage.type.inherited-class"]
     } type,
 
+    event = λ(type: Event) -> merge {
+      Internal = Scope/from ["meta.event.internal", "entity.name.tag"],
+      External = Scope/from ["meta.event.external", "entity.name.class"],
+      Loop     = Scope/from ["meta.event.loop",     "storage.type.class"]
+    } type,
+    guard = Scope/from ["meta.guard", "entity.name.function"],
+
     operator = {
-      arrow = Scope/from ["meta.arrow", "keyword.operator"]
+      arrow = Scope/from ["meta.arrow", "keyword.operator"],
+      at    = Scope/from ["meta.at",    "keyword.operator"]
     }
   },
 
   type = {
-    State = State
+    State = State,
+    Event = Event
   }
 }
