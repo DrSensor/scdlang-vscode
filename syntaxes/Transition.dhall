@@ -34,7 +34,7 @@ let loop-transition = λ(arrow: Direction) -> λ(symbol: Text) -> λ(scope: Text
 let self-transition = λ(arrow: Direction) -> λ(symbol: Text) -> λ(scope: Text)
   -> transition-from (None Text) { regex = symbol, loop = True } arrow scope
 
-in toMap {
+in {
   transition-into   = normal-transition Direction.Right "-+>>?"     "transition.normal",
   transition-from   = normal-transition Direction.Left  "<?<-+"     "transition.normal",
   toggle-transition = normal-transition Direction.Both  "<-+>"      "transition.toggle",

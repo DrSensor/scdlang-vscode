@@ -4,6 +4,7 @@ let lang = "scl"
 
 let Scope = { name: Text }
 let Scope/from = λ(scopes: List Text) ->
+  let scopes = List/reverse Text scopes
   let suffixEach = λ(scope: Text) -> scope++".${lang}"
   in Text/concatMapSep " " Text suffixEach scopes
 
@@ -12,11 +13,11 @@ let Pair/entry = λ(match: Text) -> λ(scope: Text) -> { match = match, scope = 
 
 let Include = { include: Text }
 let Include/entry = λ(repo: Text) -> { include = "#"++repo }
-let Include/list = λ(repos: List Text)
+let Include/from = λ(repos: List Text)
   -> List/map Text Include Include/entry repos
 
 let pattern = {
-  OneLine = { match: Text, captures: List Scope }
+  LineMatch = { match: Text, captures: List Scope }
 }
 
 {-assert :
@@ -51,7 +52,7 @@ in {
   pattern = {
     Include = Include,
       Include/entry = Include/entry,
-      Include/list = Include/list,
+      Include/from = Include/from,
     capture = capture
   } ⫽ pattern
 }

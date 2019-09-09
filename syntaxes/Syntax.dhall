@@ -15,13 +15,13 @@ in {
   scope = {
     language = lang,
     state = λ(type: State) -> merge {
-      From = Scope/from ["entity.name.class", "meta.state.from"],
-      Into = Scope/from ["entity.other.inherited-class", "meta.state.into"],
-      Loop = Scope/from ["entity.other.inherited-class", "markup.italic", "meta.state.into"]
+      From = Scope/from ["meta.state.from", "entity.name.class"],
+      Into = Scope/from ["meta.state.into", "entity.other.inherited-class"],
+      Loop = Scope/from ["meta.state.into", "storage.type.inherited-class"]
     } type,
 
     operator = {
-      arrow = Scope/from ["keyword.operator", "meta.arrow"]
+      arrow = Scope/from ["meta.arrow", "keyword.operator"]
     }
   },
 
