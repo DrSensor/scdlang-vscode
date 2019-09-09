@@ -25,7 +25,9 @@ indent_style = space
 indent_size = 2
 insert_final_newline = false
 
-[syntaxes/*.{yml,yaml}]
+[syntaxes/*.{yml,yaml,dhall}]
+indent_style = space
+indent_size = 2
 insert_final_newline = true
 
 [{*.{rc,json,toml,workflow,config.js},Justfile}]

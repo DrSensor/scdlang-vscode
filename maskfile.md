@@ -24,7 +24,13 @@ docker-compose up --no-start
 > Generate textmate grammar to be used in VSCode
 
 ```sh
-pnpx js-yaml syntaxes/Scdlang.YAML-tmLanguage > dist/Scdlang.tmLanguage.json
+if which dhall-to-json 2>/dev/null; then
+  if dhall-to-json --file syntaxes/Scdlang.dhall --pretty --output dist/Scdlang.tmLanguage.json; then
+    BAT_PAGER='' bat dist/Scdlang.tmLanguage.json
+  fi
+else
+  docker-compose run --rm --user $(id --user) dhall-json
+fi
 ```
 
 ### build textmate

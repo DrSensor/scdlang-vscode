@@ -41,7 +41,6 @@
         "@typescript-eslint/eslint-plugin": "2",
         "@typescript-eslint/parser": "2",
         "eslint": "6",
-        "js-yaml": "^3.13.1",
         "plist": "3",
         "typescript": "3.5"
     }

@@ -30,3 +30,12 @@ services:
     command: [dist/Scdlang.tmLanguage]
     volumes:
       - ./dist:/dist:rw
+
+  dhall-json:
+    image: dhallhaskell/dhall-json
+    network_mode: host
+    entrypoint: [dhall-to-json]
+    command: [--file, syntaxes/Scdlang.dhall, --pretty, --output, dist/Scdlang.tmLanguage.json]
+    volumes:
+      - ./dist:/dist:rw
+      - ./syntaxes:/syntaxes:ro
