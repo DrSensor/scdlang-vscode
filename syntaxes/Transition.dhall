@@ -1,5 +1,13 @@
 let _ = {=}
+  let Text/default = https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelude/Text/default
+  let List/null = https://prelude.dhall-lang.org/List/null
   let List/empty = λ(a: Type) -> [] : List a
+  let Optional/null = https://prelude.dhall-lang.org/Optional/null
+  let Text/head = λ(text: List Text) -> Text/default (List/head Text text)
+  let Text/head/empty = λ(text: List Text) -> Optional/null Text (List/head Text text)
+  let Text/last = λ(text: List Text) -> Text/default (List/last Text text)
+  let Text/last/empty = λ(text: List Text) -> Optional/null Text (List/last Text text)
+
 let Syntax = ./Syntax.dhall
   let State = Syntax.type.State
   let Event = Syntax.type.Event
@@ -13,6 +21,7 @@ let Prelude = ./Prelude.dhall
     let Pair/required = Prelude.util.Pair/required
     let Pair/optional = Prelude.util.Pair/optional
     let Pair/group = Prelude.util.Pair/group
+    let Pair/group/required = Prelude.util.Pair/group/required
     let Pair/group/optional = Prelude.util.Pair/group/optional
   let capture = Prelude.pattern.capture
 
@@ -27,12 +36,29 @@ let event = λ(type: Event) -> [
     Pair/optional "?:\\[(${guard})\\]"  (Syntax.scope.guard)
   ]
   let event/optional = λ(type: Event) -> Pair/group/optional "\\s*" (event type)
+  let event/required = λ(type: Event) -> Pair/group/required "\\s*" (event type)
 
 let action = [
     Pair/required "\\|>"  (Syntax.scope.operator.pipe),
     Pair/optional action  (Syntax.scope.action)
   ]
   let action/optional = Pair/group/optional "\\s*" action
+  let action/required = Pair/group/required "\\s*" action
+
+let internal-transition = λ(brackets: List Text) ->
+  let currentScope = if List/null Text brackets
+    then Syntax.scope.state State.From
+    else Syntax.scope.state State.Loop
+  let bracket = {
+    open = if Text/head/empty brackets
+      then List/empty Pair else [Pair/required (Text/head brackets) "keyword.operator"],
+    close = if Text/last/empty brackets
+      then List/empty Pair else [Pair/required (Text/last brackets) "keyword.operator"]
+  } in λ(scope: Text) -> capture scope "\\s*"
+    ([Pair/required state currentScope] # bracket.open 
+        # event/required Event.Internal
+        # action/required
+    # bracket.close)
 
 let transition-from = λ(leftState: Optional Text) -> λ(type: Event) ->
   let State/Into = merge
@@ -62,5 +88,7 @@ in {
   toggle-transition = normal-transition Direction.Both  "<-+>"      "transition.toggle",
   self-transition   = self-transition   Direction.Right "-+>>"      "transition.loop",
   loop-from         = loop-transition   Direction.Left  "<<-+|<-+<" "transition.loop",
-  loop-into         = loop-transition   Direction.Right "-+>>"      "transition.loop"
+  loop-into         = loop-transition   Direction.Right "-+>>"      "transition.loop",
+  state-internal-transition  = internal-transition (List/empty Text) "transition.internal",
+  parent-internal-transition = internal-transition ["<-+<", ">"]     "transition.internal"
 }
