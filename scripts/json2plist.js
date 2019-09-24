@@ -4,7 +4,7 @@ const { argv, cwd, stdout } = process
 
 function readYaml(filePath) {
   const text = require("fs").readFileSync(filePath, "utf8")
-  return require("js-yaml").safeLoad(text)
+  return JSON.parse(text)
 }
 
 function inspectPlist(object) {

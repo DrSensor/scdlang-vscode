@@ -1,14 +1,9 @@
-# TODO: add stage for building examples/syntect when https://github.com/rust-lang/docker-rust/issues/10 resolved
-FROM busybox as sublimehq
+FROM busybox:musl as bat
 
-ADD https://github.com/sublimehq/Packages/archive/master.tar.gz /tmp/
-RUN tar xvzf /tmp/master.tar.gz && rm -r /tmp/*
+ADD https://glare.now.sh/sharkdp/bat/bat-v[0-9.]+-x86_64-.*-musl.tar.gz /tmp/
+RUN for file in /tmp/*.tar.gz; do tar xvf "$file"; done && \
+	mv bat-*-linux*/bat /bin/ && rm -r bat-*-linux* /tmp/*
 
-FROM gcr.io/distroless/cc
 
-COPY --from=sublimehq /Packages-master /Packages
-
-# COPY --from=build target/release/examples/syntect /bin/
-# ENTRYPOINT [ "syntect" ]
-# CMD ["synpack", "Packages", "dist/newlines.packdump", "dist/nonewlines.packdump", "dist/metadata.packdump", "Rules"]
-# CMD ["themepack" "Themes" "dist/default.themedump"]
+FROM gcr.io/distroless/static
+COPY --from=bat /bin/bat /bin/

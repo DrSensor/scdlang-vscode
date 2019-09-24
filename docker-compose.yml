@@ -8,34 +8,56 @@
 version: "3"
 services:
 
-  packdump:
-    depends_on: [convert_syntax]
-    build:
-      context: docker
-      dockerfile: syntect.dockerfile
-    entrypoint: [syntect, synpack, Packages]
-    command: [dist/newlines.packdump, dist/nonewlines.packdump, dist/metadata.packdump, Rules]
+  bat:
+    image: bat
+    build: { context: docker, dockerfile: syntect.dockerfile }
+    entrypoint: [bat]
+    environment: { HOME: /root }
     volumes:
-      - ./dist:/dist:rw
-      - ./dist/rules:/Rules:ro
-      - ./dist/Scdlang.sublime-syntax:/Packages/Scdlang/Scdlang.sublime-syntax:ro
-      - ./target/release/examples:/bin:ro
-  
+      - ./examples:/examples:ro
+      - ./dist/syntect:/root/.cache/bat:ro
+
+  packdump:
+    depends_on: [bat]
+    image: bat
+    entrypoint: [bat]
+    command: [cache, --build, --source, dist/syntect, --target, dist/syntect]
+    volumes:
+      - ./dist/syntect:/dist/syntect:rw
+
   # The service name is same as `subl --command <name>` for converting .tmLanguage
   convert_syntax:
-    build:
-      context: docker
-      dockerfile: sublime.dockerfile
-    entrypoint: [sublime_syntax_convertor]
-    command: [dist/Scdlang.tmLanguage]
+    build: { context: docker, dockerfile: sublime.dockerfile }
+    entrypoint: [./bin/sublime_syntax_convertor]
+    command: [/dist/Scdlang.tmLanguage]
     volumes:
       - ./dist:/dist:rw
 
+  dhall:
+    image: dhall
+    build: { context: docker, dockerfile: dhall.dockerfile }
+    network_mode: host
+    entrypoint: [dhall]
+    volumes:
+      - ./dist:/dist:rw
+      - ./syntaxes:/syntaxes:ro
+  
   dhall-json:
-    image: dhallhaskell/dhall-json
+    depends_on: [dhall]
+    image: dhall
     network_mode: host
     entrypoint: [dhall-to-json]
     command: [--file, syntaxes/Scdlang.dhall, --pretty, --output, dist/Scdlang.tmLanguage.json]
+    volumes:
+      - ./dist:/dist:rw
+      - ./syntaxes:/syntaxes:ro
+
+  yaml-dhall:
+    depends_on: [dhall]
+    image: dhall
+    network_mode: host
+    entrypoint: [yaml-to-dhall]
+    command: [syntaxes/Scdlang.YAML-tmLanguage, --file, syntaxes/Scdlang.YAML-tmLanguage, --output, syntaxes/Scdlang.DHALL-tmLanguage]
     volumes:
       - ./dist:/dist:rw
       - ./syntaxes:/syntaxes:ro
