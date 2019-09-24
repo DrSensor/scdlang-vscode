@@ -1,4 +1,5 @@
 let _ = {=}
+  let Map = https://prelude.dhall-lang.org/Map/Type
   let Text/concatMapSep = https://prelude.dhall-lang.org/Text/concatMapSep
   let Text/defaultMap = https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelude/Text/defaultMap
   let List/map = https://prelude.dhall-lang.org/List/map
@@ -19,7 +20,7 @@ let Include = { include: Text }
     -> List/map Text Include Include/entry repos
 
 let pattern = {
-  LineMatch = { match: Text, captures: List Scope }
+  LineMatch = { match: Text, captures: Map Text Scope }
 }
 
 let Pair = { match: Optional Text, scope: Text, optional: Bool }
@@ -66,9 +67,12 @@ let capture =
   let captureFrom = λ(pair: Pair) -> { name = pair.scope }
   in λ(rootScope: Text) ->
     let firstCapture = [{ name = "meta.${rootScope}.${lang}" }]
-  in λ(separator: Text) -> λ(pairs: List Pair) -> {
+  in λ(separator: Text) -> λ(pairs: List Pair) -> 
+    let pair2map = λ(scope: {index: Natural, value: Scope}) -> { mapKey = Natural/show scope.index, mapValue = scope.value }
+    let captures = List/indexed Scope (firstCapture # List/map Pair Scope captureFrom pairs)
+  in {
     match = Text/concatMapSep separator Pair Pair/getMatch (Pair/filterMatch pairs),
-    captures = firstCapture # List/map Pair Scope captureFrom pairs
+    captures = List/map {index: Natural, value: Scope} {mapKey: Text, mapValue: Scope} pair2map captures
   }
 
 in {

@@ -166,8 +166,6 @@ repository:
       end: \*/
       endCaptures:
         '0': { name: punctuation.definition.comment.scl }
-      patterns:
-      - include: '#docblock'
     - name: comment.block.scl
       begin: (/\*)(?:\s*((@)internal)(?=\s|(\*/)))?
       beginCaptures:
