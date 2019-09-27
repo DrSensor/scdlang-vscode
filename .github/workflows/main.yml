@@ -1,0 +1,52 @@
+# TODO: publish syntaxset.packdump to github release page
+name: Build
+
+on:
+  pull_request:
+    paths:
+    - docker-compose.yml
+    - '*.dockerfile'
+    - '*.dhall'
+    - 'examples/*'
+    - scripts/*
+  push:
+    branches: ['*']
+    tags: ['*.*.*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    #region Preparation
+    - run: curl -L https://unpkg.com/@pnpm/self-installer | sudo node
+    - name: Prepare **dist** folder
+      run: |
+        mkdir -p dist/rules
+        mkdir -p dist/syntect/{syntaxes,themes}
+    - run: docker-compose build
+    #endregion Preparation
+    #region Build
+    - { run: docker-compose run --rm --user $(id --user) dhall-json,          name: create Scdlang.tmLanguage.json }
+    - { run: pnpm i && ./scripts/json2plist.js dist/Scdlang.tmLanguage.json,  name: create Scdlang.tmLanguage      }
+    - { run: docker-compose run --rm --user $(id --user) convert_syntax,      name: create Scdlang.sublime-syntax  }
+    - { run: docker-compose run --rm --user $(id --user) packdump,            name: create syntaxes.bin            }
+    #endregion Build, name: create .tmLanguage.json }
+    - uses: actions/upload-artifact@master
+      with: { name: grammar, path: dist }
+      # if: github.event_name == 'pull_request' || sda
+    - name: Inspect CI contexts
+      run: |
+        print_context() { echo $1 | jq . || echo $1; }
+        echo ==================== github ==================================
+        print_context {{ github }}
+        echo ==================== job ==================================
+        print_context {{ job }}
+        echo ==================== steps ==================================
+        print_context {{ steps }}
+        echo ==================== runner ==================================
+        print_context {{ runner }}        
+        echo ==================== strategy ==================================
+        print_context {{ strategy }}
+        echo ==================== matrix ==================================
+        print_context {{ matrix }}
