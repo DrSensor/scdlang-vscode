@@ -15,12 +15,18 @@ on:
 
 jobs:
   build:
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
     #region Preparation
-    - run: brew install hub
+    - name: Install hub.github.com
+      run: |
+        wget -nv 'https://glare.now.sh/github/hub/.*linux-amd64.*.tgz' -O /tmp/hub-latest.tgz
+        mkdir hub-latest && tar xvf /tmp/hub-latest.tgz --strip=1 -C hub-latest
+        cd hub-latest && sudo ./install
+        rm -r ../hub-latest /tmp/*.tgz
+    - run: hub --version
     - run: sudo npm install --global pnpm
+    - uses: actions/checkout@v1
     - name: Prepare **dist** folder
       run: |
         mkdir -p dist/rules
