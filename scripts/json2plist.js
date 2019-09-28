@@ -10,7 +10,8 @@ function readYaml(filePath) {
 
 function inspectPlist(object) {
   const tmLanguage = require("plist").build(object)
-  if (stdout.isTTY) writeFileSync(`${dirname(argv[2])}/Scdlang.tmLanguage`, tmLanguage)
+  if (stdout.isTTY || argv[3] === "-")
+    writeFileSync(`${dirname(argv[2])}/Scdlang.tmLanguage`, tmLanguage)
   else stdout.write(tmLanguage)
 }
 
