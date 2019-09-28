@@ -1,15 +1,17 @@
 #!/usr/bin/env node
-const { join } = require("path")
+const { join, dirname } = require("path")
+const { readFileSync, writeFileSync } = require("fs")
 const { argv, cwd, stdout } = process
 
 function readYaml(filePath) {
-  const text = require("fs").readFileSync(filePath, "utf8")
+  const text = readFileSync(filePath, "utf8")
   return JSON.parse(text)
 }
 
 function inspectPlist(object) {
-  const { build } = require("plist")
-  stdout.write(build(object))
+  const tmLanguage = require("plist").build(object)
+  if (stdout.isTTY) writeFileSync(`${dirname(argv[2])}/Scdlang.tmLanguage`, tmLanguage)
+  else stdout.write(tmLanguage)
 }
 
 const file = join(cwd(), argv[2])
