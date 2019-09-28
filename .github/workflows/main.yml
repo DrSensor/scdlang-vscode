@@ -10,7 +10,7 @@ on:
     - 'examples/*'
     - scripts/*
   push:
-    branches: ['*']
+    branches: ['*', '*/*', '*/*/*'] #cuz https://golang.org/pkg/path/#Match doesn't support globstar 😢
     tags: ['*.*.*']
 
 jobs:
@@ -18,20 +18,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    #region Preparation
-    - run: curl -L https://unpkg.com/@pnpm/self-installer | sudo node
-    - name: Prepare **dist** folder
-      run: |
-        mkdir -p dist/rules
-        mkdir -p dist/syntect/{syntaxes,themes}
-    - run: docker-compose build
-    #endregion Preparation
-    #region Build
-    - { run: docker-compose run --rm --user $(id --user) dhall-json,            name: create Scdlang.tmLanguage.json }
-    - { run: pnpm i && ./scripts/json2plist.js dist/Scdlang.tmLanguage.json -,  name: create Scdlang.tmLanguage      }
-    - { run: docker-compose run --rm --user $(id --user) convert_syntax,        name: create Scdlang.sublime-syntax  }
-    - { run: docker-compose run --rm --user $(id --user) packdump,              name: create syntaxes.bin            }
-    #endregion Build, name: create .tmLanguage.json }
-    - uses: actions/upload-artifact@master
-      if: github.event_name == 'pull_request' || endsWith(github.ref, 'master')
-      with: { name: grammar, path: dist }
+    - run: which hub
+    - run: hub --version
+    # #region Preparation
+    # - run: curl -L https://unpkg.com/@pnpm/self-installer | sudo node
+    # - name: Prepare **dist** folder
+    #   run: |
+    #     mkdir -p dist/rules
+    #     mkdir -p dist/syntect/{syntaxes,themes}
+    # - run: docker-compose build
+    # #endregion Preparation
+    # #region Build
+    # - { run: docker-compose run --rm --user $(id --user) dhall-json,            name: create Scdlang.tmLanguage.json }
+    # - { run: pnpm i && ./scripts/json2plist.js dist/Scdlang.tmLanguage.json -,  name: create Scdlang.tmLanguage      }
+    # - { run: docker-compose run --rm --user $(id --user) convert_syntax,        name: create Scdlang.sublime-syntax  }
+    # - { run: docker-compose run --rm --user $(id --user) packdump,              name: create syntaxes.bin            }
+    # #endregion Build, name: create .tmLanguage.json }
+    # - uses: actions/upload-artifact@master
+    #   if: github.event_name == 'pull_request' || endsWith(github.ref, 'master')
+    #   with: { name: grammar, path: dist }
+    - run: hub
+      if: contains(github.ref, 'refs/tags')
