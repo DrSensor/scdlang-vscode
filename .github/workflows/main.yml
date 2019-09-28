@@ -18,10 +18,9 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v1
-    - run: brew install hub
-    - run: hub --version
     #region Preparation
-    - run: curl -L https://unpkg.com/@pnpm/self-installer | sudo node
+    - run: brew install hub
+    - run: sudo npm install --global pnpm
     - name: Prepare **dist** folder
       run: |
         mkdir -p dist/rules
