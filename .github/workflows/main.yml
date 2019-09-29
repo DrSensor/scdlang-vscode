@@ -25,29 +25,22 @@ jobs:
         cd hub-latest && sudo ./install
         rm -r ../hub-latest /tmp/*.tgz
         hub --version
-    # - run: sudo npm install --global pnpm
+    - run: sudo npm install --global pnpm
 
     - uses: actions/checkout@v1
     - name: Prepare **dist** folder
       run: |
         mkdir -p dist/rules
         mkdir -p dist/syntect/{syntaxes,themes}
-    # - run: docker-compose build
-    # #endregion Preparation
+    - run: docker-compose build
+    #endregion Preparation
 
-    # #region Build
-    # - { run: docker-compose run --rm --user $(id --user) dhall-json,            name: create Scdlang.tmLanguage.json }
-    # - { run: pnpm i && ./scripts/json2plist.js dist/Scdlang.tmLanguage.json -,  name: create Scdlang.tmLanguage      }
-    # - { run: docker-compose run --rm --user $(id --user) convert_syntax,        name: create Scdlang.sublime-syntax  }
-    # - { run: docker-compose run --rm --user $(id --user) packdump,              name: create syntaxes.bin            }
-    # #endregion Build, name: create .tmLanguage.json }
-
-    - name: Create dummy dist
-      run: |
-        echo '' > dist/Scdlang.tmLanguage.json
-        echo '' > dist/Scdlang.tmLanguage
-        echo '' > dist/Scdlang.sublime-syntax
-        echo '' > dist/syntect/syntaxes.bin
+    #region Build
+    - { run: docker-compose run --rm --user $(id --user) dhall-json,            name: create Scdlang.tmLanguage.json }
+    - { run: pnpm i && ./scripts/json2plist.js dist/Scdlang.tmLanguage.json -,  name: create Scdlang.tmLanguage      }
+    - { run: docker-compose run --rm --user $(id --user) convert_syntax,        name: create Scdlang.sublime-syntax  }
+    - { run: docker-compose run --rm --user $(id --user) packdump,              name: create syntaxes.bin            }
+    #endregion Build, name: create .tmLanguage.json }
 
     - uses: actions/upload-artifact@master
       if: github.event_name == 'pull_request' || endsWith(github.ref, 'master')
