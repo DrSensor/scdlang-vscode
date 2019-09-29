@@ -11,7 +11,7 @@ on:
     - scripts/*
   push:
     branches: ['*', '*/*', '*/*/*'] #cuz https://golang.org/pkg/path/#Match doesn't support globstar 😢
-    tags: ['*.*.*']
+    tags: ['v?*.*.*']
 
 jobs:
   build:
