@@ -54,8 +54,8 @@ jobs:
       with: { name: grammar, path: dist }
     - name: Releases
       if: contains(github.ref, 'refs/tags')
-      run: >-
-        git for-each-ref --format="%(contents:subject)%0a%0a%(contents:body)" ${GITHUB_REF} \|
+      run: >
+        git for-each-ref --format="%(contents:subject)%0a%0a%(contents:body)" ${{ github.ref }} |
           hub release create -F- --draft
             --attach dist/Scdlang.tmLanguage.json
             --attach dist/Scdlang.tmLanguage
