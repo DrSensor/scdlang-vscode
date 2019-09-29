@@ -11,7 +11,7 @@ on:
     - scripts/*
   push:
     branches: ['*', '*/*', '*/*/*'] #cuz https://golang.org/pkg/path/#Match doesn't support globstar 😢
-    tags: ['v?*.*.*']
+    tags: ['v?*.*.*']               #and it doesn't support regex \d or alike
 
 jobs:
   build:
@@ -47,7 +47,7 @@ jobs:
       with: { name: grammar, path: dist }
     - name: Releases
       if: contains(github.ref, 'refs/tags')
-      run: hub release create --draft         \
+      run: hub release create --draft -m '${{ toJSON(github) }}'   \
         --attach dist/Scdlang.tmLanguage.json \
         --attach dist/Scdlang.tmLanguage      \
         --attach dist/Scdlang.sublime-syntax  \
