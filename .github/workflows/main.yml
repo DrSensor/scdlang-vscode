@@ -19,7 +19,7 @@ jobs:
     steps:
     #region Preparation
     - name: Install hub.github.com
-      run: |
+      run: |-
         wget -nv 'https://glare.now.sh/github/hub/.*linux-amd64.*.tgz' -O /tmp/hub-latest.tgz
         mkdir hub-latest && tar xf /tmp/hub-latest.tgz --strip=1 -C hub-latest
         cd hub-latest && sudo ./install
@@ -29,7 +29,7 @@ jobs:
 
     - uses: actions/checkout@v1
     - name: Prepare **dist** folder
-      run: |
+      run: |-
         mkdir -p dist/rules
         mkdir -p dist/syntect/{syntaxes,themes}
     - run: docker-compose build
@@ -55,5 +55,4 @@ jobs:
         --attach dist/Scdlang.sublime-syntax
         --attach dist/syntect/syntaxes.bin
         ${GITHUB_REF##*/}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
