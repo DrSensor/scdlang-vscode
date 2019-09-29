@@ -21,10 +21,10 @@ jobs:
     - name: Install hub.github.com
       run: |
         wget -nv 'https://glare.now.sh/github/hub/.*linux-amd64.*.tgz' -O /tmp/hub-latest.tgz
-        mkdir hub-latest && tar xvf /tmp/hub-latest.tgz --strip=1 -C hub-latest
+        mkdir hub-latest && tar xf /tmp/hub-latest.tgz --strip=1 -C hub-latest
         cd hub-latest && sudo ./install
         rm -r ../hub-latest /tmp/*.tgz
-    - run: hub --version
+        hub --version
     - run: sudo npm install --global pnpm
 
     - uses: actions/checkout@v1
@@ -47,9 +47,10 @@ jobs:
       with: { name: grammar, path: dist }
     - name: Releases
       if: contains(github.ref, 'refs/tags')
-      run: hub release create --draft -m '${{ toJSON(github) }}'   \
+      run: sudo hub release create --draft    \
         --attach dist/Scdlang.tmLanguage.json \
         --attach dist/Scdlang.tmLanguage      \
         --attach dist/Scdlang.sublime-syntax  \
         --attach dist/syntect/syntaxes.bin    \
+        --message $(git tag --list ${GITHUB_REF##*/} --format='%(contents:subject)%0a%(contents:body)') \
         ${GITHUB_REF##*/}
