@@ -26,6 +26,7 @@ jobs:
         rm -r ../hub-latest /tmp/*.tgz
     - run: hub --version
     - run: sudo npm install --global pnpm
+
     - uses: actions/checkout@v1
     - name: Prepare **dist** folder
       run: |
@@ -33,14 +34,22 @@ jobs:
         mkdir -p dist/syntect/{syntaxes,themes}
     - run: docker-compose build
     #endregion Preparation
+
     #region Build
     - { run: docker-compose run --rm --user $(id --user) dhall-json,            name: create Scdlang.tmLanguage.json }
     - { run: pnpm i && ./scripts/json2plist.js dist/Scdlang.tmLanguage.json -,  name: create Scdlang.tmLanguage      }
     - { run: docker-compose run --rm --user $(id --user) convert_syntax,        name: create Scdlang.sublime-syntax  }
     - { run: docker-compose run --rm --user $(id --user) packdump,              name: create syntaxes.bin            }
     #endregion Build, name: create .tmLanguage.json }
+
     - uses: actions/upload-artifact@master
       if: github.event_name == 'pull_request' || endsWith(github.ref, 'master')
       with: { name: grammar, path: dist }
-    - run: hub
+    - name: Releases
       if: contains(github.ref, 'refs/tags')
+      run: hub release create --draft         \
+        --attach dist/Scdlang.tmLanguage.json \
+        --attach dist/Scdlang.tmLanguage      \
+        --attach dist/Scdlang.sublime-syntax  \
+        --attach dist/syntect/syntaxes.bin    \
+        ${GITHUB_REF##*/}
