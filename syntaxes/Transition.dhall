@@ -1,8 +1,8 @@
 let _ = {=}
-  let Text/default = https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelude/Text/default
-  let List/null = https://prelude.dhall-lang.org/List/null
+  let Text/default = https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelude/Text/default sha256:e26d120fe57a4b61259d1149d938a66d335e1eb263196c30311c117073e4f92f ? https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelude/Text/default
+  let List/null = https://prelude.dhall-lang.org/List/null sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80 ? https://prelude.dhall-lang.org/List/null
   let List/empty = λ(a: Type) -> [] : List a
-  let Optional/null = https://prelude.dhall-lang.org/Optional/null
+  let Optional/null = https://prelude.dhall-lang.org/Optional/null sha256:efc43103e49b56c5bf089db8e0365bbfc455b8a2f0dc6ee5727a3586f85969fd ? https://prelude.dhall-lang.org/Optional/null
   let Text/head = λ(text: List Text) -> Text/default (List/head Text text)
   let Text/head/empty = λ(text: List Text) -> Optional/null Text (List/head Text text)
   let Text/last = λ(text: List Text) -> Text/default (List/last Text text)
