@@ -15,10 +15,14 @@ let Scope = { name: Text }
     let scopes = List/reverse Text scopes
     let suffixEach = λ(scope: Text) -> scope++".${lang}"
     in Text/concatMapSep " " Text suffixEach scopes
-  let Scope/name = λ(scopes: List Text) -> { name = Scope/from scopes }
-  let Scope/list2map = λ(captures: List Scope) ->
-    let pair2map = λ(scope: Scope/Index) -> { mapKey = Natural/show scope.index, mapValue = scope.value }
-    let indexedCaptures = List/indexed Scope captures
+  let Scope/name = λ(scopes: List Text) -> { name = Scope/from scopes } : Scope
+  let Scope/list2map = λ(startpos: Natural) ->
+    let pair2map = λ(scope: Scope/Index) -> {
+      mapKey = Natural/show (scope.index + startpos),
+      mapValue = scope.value
+    }
+    in λ(captures: List Scope) ->
+      let indexedCaptures = List/indexed Scope captures
     in List/map Scope/Index Scope/Map pair2map indexedCaptures
 
 let Include = { include: Text }
@@ -26,9 +30,21 @@ let Include = { include: Text }
   let Include/from = λ(repos: List Text)
     -> List/map Text Include Include/entry repos
 
-let pattern = {
-  LineMatch = { match: Text, captures: Map Text Scope }
-}
+--#begin types
+let pattern =
+  let Captures = Map Text Scope
+  let BlockCaptures = {
+    name: Optional Text,
+    begin: Text,
+    beginCaptures: Captures,
+    end: Text,
+    endCaptures: Optional Captures,
+    contentName: Optional Text
+  } in {
+    LineMatch = { match: Text, captures: Captures },
+    BlockMatch = { patterns: List BlockCaptures }
+  }
+--#endbegin types
 
 let Pair = { match: Optional Text, scope: Text, optional: Bool }
   let Pair/Index = { index: Natural, value: Pair }
@@ -63,30 +79,23 @@ let Pair = { match: Optional Text, scope: Text, optional: Bool }
     -> group { optional = True, separator = separator } pairs
   --#endregion Pair/group
 
-let capture =
-  {-assert : capture "root.scope" "\\s"
-  [ pair "[A-Z][0-9]+" "child1.scope"
-  , pair "[a-z]\w*"    "child2.scope"
-  ] ===
-  { match: "([A-Z][0-9]+)\\s([A-Z][0-9]+)"
-  , captures: [ { name = "child1.scope" }
-              , { name = "child2.scope" } ] } -}
+let capture/from = λ(startpos: Natural) ->
   let captureFrom = λ(pair: Pair) -> { name = pair.scope }
   in λ(rootScope: Text) ->
     let firstCapture = [{ name = "meta.${rootScope}.${lang}" }]
   in λ(separator: Text) -> λ(pairs: List Pair) -> 
     let captures = (firstCapture # List/map Pair Scope captureFrom pairs)
-  in {
+  in ({
     match = Text/concatMapSep separator Pair Pair/getMatch (Pair/filterMatch pairs),
-    captures = Scope/list2map captures
-  }
+    captures = Scope/list2map startpos captures
+  }) : pattern.LineMatch
 
-let capture/begin = λ(rootScope: Text) -> λ(separator: Text) -> λ(pairs: List Pair) ->
-  let captured = capture rootScope separator pairs
+let capture/begin = λ(startpos: Natural) -> λ(rootScope: Text) -> λ(separator: Text) -> λ(pairs: List Pair) ->
+  let captured = capture/from startpos rootScope separator pairs
   in { begin = captured.match, beginCaptures = captured.captures }
 
-let capture/end = λ(rootScope: Text) -> λ(separator: Text) -> λ(pairs: List Pair) ->
-  let captured = capture rootScope separator pairs
+let capture/end = λ(startpos: Natural) -> λ(rootScope: Text) -> λ(separator: Text) -> λ(pairs: List Pair) ->
+  let captured = capture/from startpos rootScope separator pairs
   in { end = captured.match, endCaptures = captured.captures }
 
 in {
@@ -109,7 +118,7 @@ in {
     Include = Include,
       Include/entry = Include/entry,
       Include/from  = Include/from,
-    capture = capture,
+    capture/from = capture/from,
       capture/begin = capture/begin,
       capture/end = capture/end
   } ∧ pattern

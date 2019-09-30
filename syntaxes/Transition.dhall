@@ -23,7 +23,7 @@ let Prelude = ./Prelude.dhall
     let Pair/group = Prelude.util.Pair/group
     let Pair/group/required = Prelude.util.Pair/group/required
     let Pair/group/optional = Prelude.util.Pair/group/optional
-  let capture = Prelude.pattern.capture
+  let capture/from = Prelude.pattern.capture/from
 
 let Direction = < Left | Right | Both >
 let Pair/stateFrom = λ(type: State) -> λ(match: Text)
@@ -55,7 +55,7 @@ let internal-transition/withState = λ(withState: Bool) -> λ(brackets: List Tex
       then List/empty Pair else [Pair/required (Text/head brackets) "keyword.operator"],
     close = if Natural/odd (List/length Text brackets)
       then List/empty Pair else [Pair/required (Text/last brackets) "keyword.operator"]
-  } in λ(scope: Text) -> capture scope "\\s*"
+  } in λ(scope: Text) -> capture/from 0 scope "\\s*"
     (pairState # bracket.open 
         # event/required Event.Internal
         # action/required
@@ -69,7 +69,7 @@ let transition-from = λ(leftState: Optional Text) -> λ(type: Event) ->
     let lhs = merge { Left = State/Into, Right = State.From, Both = State/Into } arrow
     let firstPair = Optional/fold Text leftState
       (List Pair) (Pair/stateFrom lhs) (List/empty Pair)
-  in λ(scope: Text) -> capture scope "\\s*" (firstPair # [
+  in λ(scope: Text) -> capture/from 0 scope "\\s*" (firstPair # [
       Pair/required regex (Syntax.scope.operator.arrow),
       Pair/required state (Syntax.scope.state rhs)
   ] # event/optional type # action/optional)
