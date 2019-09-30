@@ -9,10 +9,17 @@ let _ = {=}
 let lang = "scl"
 
 let Scope = { name: Text }
+  let Scope/Index = { index: Natural, value: Scope }
+  let Scope/Map = { mapKey: Text, mapValue: Scope }
   let Scope/from = λ(scopes: List Text) ->
     let scopes = List/reverse Text scopes
     let suffixEach = λ(scope: Text) -> scope++".${lang}"
     in Text/concatMapSep " " Text suffixEach scopes
+  let Scope/name = λ(scopes: List Text) -> { name = Scope/from scopes }
+  let Scope/list2map = λ(captures: List Scope) ->
+    let pair2map = λ(scope: Scope/Index) -> { mapKey = Natural/show scope.index, mapValue = scope.value }
+    let indexedCaptures = List/indexed Scope captures
+    in List/map Scope/Index Scope/Map pair2map indexedCaptures
 
 let Include = { include: Text }
   let Include/entry = λ(repo: Text) -> { include = "#"++repo }
@@ -68,12 +75,19 @@ let capture =
   in λ(rootScope: Text) ->
     let firstCapture = [{ name = "meta.${rootScope}.${lang}" }]
   in λ(separator: Text) -> λ(pairs: List Pair) -> 
-    let pair2map = λ(scope: {index: Natural, value: Scope}) -> { mapKey = Natural/show scope.index, mapValue = scope.value }
-    let captures = List/indexed Scope (firstCapture # List/map Pair Scope captureFrom pairs)
+    let captures = (firstCapture # List/map Pair Scope captureFrom pairs)
   in {
     match = Text/concatMapSep separator Pair Pair/getMatch (Pair/filterMatch pairs),
-    captures = List/map {index: Natural, value: Scope} {mapKey: Text, mapValue: Scope} pair2map captures
+    captures = Scope/list2map captures
   }
+
+let capture/begin = λ(rootScope: Text) -> λ(separator: Text) -> λ(pairs: List Pair) ->
+  let captured = capture rootScope separator pairs
+  in { begin = captured.match, beginCaptures = captured.captures }
+
+let capture/end = λ(rootScope: Text) -> λ(separator: Text) -> λ(pairs: List Pair) ->
+  let captured = capture rootScope separator pairs
+  in { end = captured.match, endCaptures = captured.captures }
 
 in {
   scopeLanguage = lang,
@@ -85,12 +99,18 @@ in {
       Pair/group/required = Pair/group/required,
       Pair/group/optional = Pair/group/optional,
     Scope = Scope,
-      Scope/from = Scope/from
+      Scope/from = Scope/from,
+      Scope/name = Scope/name,
+      Scope/list2map = Scope/list2map,
+      Scope/Index = Scope/Index,
+      Scope/Map = Scope/Map
   },
   pattern = {
     Include = Include,
       Include/entry = Include/entry,
       Include/from  = Include/from,
-    capture = capture
+    capture = capture,
+      capture/begin = capture/begin,
+      capture/end = capture/end
   } ∧ pattern
 }
