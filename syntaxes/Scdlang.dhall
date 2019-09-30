@@ -1,11 +1,11 @@
-let _ = {=}
+let Prelude = https://prelude.dhall-lang.org/package.dhall
   let Map = https://prelude.dhall-lang.org/Map/Type
-  let Map/keys = https://prelude.dhall-lang.org/Map/keys
+  let Map/keys = Prelude.Map.keys
 
 let Transition = ./Transition.dhall
 let Comment = ./Comment.dhall
-let Prelude = ./Prelude.dhall
-  let pattern = Prelude.pattern
+let Textmate = ./Prelude.dhall
+  let pattern = Textmate.pattern
 
 let keys = λ(a: Type) -> λ(b: Map Text a) -> Map/keys Text a b
 let pattern = {

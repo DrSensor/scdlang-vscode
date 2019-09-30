@@ -1,9 +1,9 @@
 let Text/concatMapSep = https://prelude.dhall-lang.org/Text/concatMapSep
 
-let Prelude = ./Prelude.dhall
-let Scope/from = Prelude.util.Scope/from
+let Textmate = ./Prelude.dhall
+let Scope/from = Textmate.util.Scope/from
 
-let lang = Prelude.scopeLanguage
+let lang = Textmate.scopeLanguage
 let State = < From | Into | Loop >
 let Event = < Internal | External | Loop >
 

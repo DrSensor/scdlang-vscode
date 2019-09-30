@@ -1,11 +1,11 @@
-let _ = {=}
+let Prelude = https://prelude.dhall-lang.org/package.dhall
   let Map = https://prelude.dhall-lang.org/Map/Type
-  let Text/concatMapSep = https://prelude.dhall-lang.org/Text/concatMapSep
+  let Text/concatMapSep = Prelude.Text.concatMapSep
   let Text/defaultMap = https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelude/Text/defaultMap
-  let List/map = https://prelude.dhall-lang.org/List/map
-  let List/filter = https://prelude.dhall-lang.org/List/filter
-  let not = https://prelude.dhall-lang.org/Bool/not
-  let Optionla/null = https://prelude.dhall-lang.org/Optional/null
+  let List/map = Prelude.List.map
+  let List/filter = Prelude.List.filter
+  let not = Prelude.Bool.not
+  let Optionla/null = Prelude.Optional.null
 let lang = "scl"
 
 let Scope = { name: Text }

@@ -6,11 +6,11 @@ let List/toMap = λ(a: Type) -> λ(list: List a) ->
   let indexedList = List/indexed a list
   in List/map List/Index List/Map list2map indexedList
 
-let Prelude = ./Prelude.dhall
-  let Scope = Prelude.util.Scope
-  let Scope/list2map = Prelude.util.Scope/list2map
-  let Scope/from = Prelude.util.Scope/from
-  let Scope/name = Prelude.util.Scope/name
+let Textmate = ./Prelude.dhall
+  let Scope = Textmate.util.Scope
+  let Scope/list2map = Textmate.util.Scope/list2map
+  let Scope/from = Textmate.util.Scope/from
+  let Scope/name = Textmate.util.Scope/name
 
 let begin = {
   line-comment = {
