@@ -1,0 +1,66 @@
+A <-< @ P |> callSomething >
+A @ P |> callSomething
+A <<->> B1 @ [invalid] // INVALID SYNTAX
+A -> B @ D
+A -> B @ F[validos] |> popup
+// A -> F
+A --> G
+A -> C1 @ [exist]
+A -- G1 @ [invalid] // INVALID SYNTAX
+A -> C @ F[okay] // error
+A <-- C @ E
+
+B ->> A |> callSomething
+A <<- B @ C
+C1 <-----------------------------------------------< G1 @ C /* this is a valid syntax
+															which act as a breakline */
+
+// D Flip-flop
+Reset ->> Set @ Data    /* flip state and reset if triggered again */
+Reset <<- Set @ Off     /* flop back  and reset if triggered again */
+
+// T Flip-flop
+Reset <-> Set @ Toggle // the essential characteristics of a flip-flop
+->> Set @  Off
+/*rollback*/->> Reset @  Off
+
+// SR Flip-flop
+Reset -> Set @ Set		/* flip state */
+Reset <- Set @ Reset	/* flop back  */
+->> Reset @ Off
+->> Set @ Off
+
+// JK Flip-flop
+Reset <-> Set @ JK // toggling state
+Reset --> Set @ J
+Reset <-- Set @ K
+->> Reset @ Off
+->> Set @ Off
+
+/* Multi
+line
+ comment */
+Set <-----------< Reset /* multi line comment
+						in right side of an expression */
+/*block comment*/->> Reset @ Off
+
+// line comment
+Set ->> Reset // line comment in right side of an expression
+// Set ->> Reset // comment out an expression
+
+Set -> Reset 	// normal transition
+Set <- Reset 	// normal transition
+Set <-> Reset	// toggle transition
+Set ->> Hold	// loop transition
+Set <<- Hold	// loop transition
+->> Hold		// self transition
+Reset <-< Hold	// auto/transient loop transition
+
+State @ Event |> action			// internal transition on specific state
+@ Event |> action				// internal transition on parent/root state
+State <-< @ Event |> action >	// parent/root state transition into `State`
+<-< @ Event |> action			// parent state transition into it's own parent
+
+Set -> Reset @ Event[guard] |> action	// if event will trigger into other state
+Set ->> Reset @ Event[guard]			// if event can trigger into same state
+Set @ Event[guard] |> action			// if event trigger internal transition
