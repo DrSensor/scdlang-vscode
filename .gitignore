@@ -1,5 +1,6 @@
 # vscode specifics
 !.vscode/*
+TODO*
 
 # build results
 dist/

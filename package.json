@@ -1,8 +1,8 @@
 {
     "name": "scdlang",
-    "displayName": "scdlang-vscode",
-    "description": "Language support for Scdlang",
-    "version": "0.0.1",
+    "displayName": "Scdlang Language Support",
+    "description": "Syntax highlighting for the Scdlang domain specific language",
+    "version": "0.1.0",
     "engines": {
         "vscode": "^1.37",
         "deno": "^0.16",
