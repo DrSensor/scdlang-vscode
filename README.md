@@ -15,12 +15,12 @@ This extension provide syntax highlighting support for [Scdlang][] language.
 
 ## Supported grammar IDE/editor/viewer
 
-- [x] anything that are base on [syntect](https://github.com/trishume/syntect)
-  - [x] [bat](https://github.com/sharkdp/bat/)
-  - [ ] [Xi](https://xi-editor.io/)
 - [x] anything that are base on [TextMate grammar](https://macromates.com/manual/en/language_grammars)
   - [x] [VS Code](https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide)
 - [x] [Sublime Text](https://www.sublimetext.com/docs/3/syntax.html)
+- [x] anything that are base on [syntect](https://github.com/trishume/syntect)
+  - [x] [bat](https://github.com/sharkdp/bat/)
+  - [ ] [Xi](https://xi-editor.io/)
 - [ ] anything that are base on [Tree-sitter](http://tree-sitter.github.io)
   - [ ] [Atom](https://flight-manual.atom.io/hacking-atom/sections/creating-a-grammar/)
 
