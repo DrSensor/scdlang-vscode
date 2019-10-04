@@ -38,7 +38,7 @@ jobs:
     #region Build
     - { run: docker-compose run --rm --user $(id --user) dhall-json,            name: create Scdlang.tmLanguage.json }
     - { run: pnpm i && ./scripts/json2plist.js dist/Scdlang.tmLanguage.json -,  name: create Scdlang.tmLanguage      }
-    - { run: docker-compose run --rm --user $(id --user) convert_syntax,        name: create Scdlang.sublime-syntax  }
+    - { run: docker-compose run --rm --user $(id --user) dhall-yaml,            name: create Scdlang.sublime-syntax  }
     - { run: docker-compose run --rm --user $(id --user) packdump,              name: create syntaxes.bin            }
     #endregion Build, name: create .tmLanguage.json }
 

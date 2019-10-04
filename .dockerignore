@@ -1,4 +1,5 @@
 *
+!scripts/*
 !target/debug/examples/*
 !target/release/examples/*
 !dist/*

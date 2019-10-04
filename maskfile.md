@@ -89,10 +89,14 @@ fi
 > Generate sublime-syntax grammar
 
 ```sh
-[ -f dist/Scdlang.tmLanguage ] || mask build textmate >/dev/null
 # [ -f dist/Scdlang.tmLanguage ] || ./scripts/automate-sublime.sh dist/Scdlang.tmLanguage dist/Scdlang.sublime-syntax
-if docker-compose run --rm --user $(id --user) convert_syntax; then
-  ./scripts/print.sh dist/Scdlang.sublime-syntax -l yaml
+
+run_and_inspect() { $1 && ./scripts/print.sh dist/Scdlang.sublime-syntax; }
+
+if which dhall-to-json 2>/dev/null; then
+  run_and_inspect "./scripts/dhall2yaml.sh --omitEmpty --file syntaxes/Scdlang.sublime-syntax.dhall dist/Scdlang.sublime-syntax"
+else
+  run_and_inspect "docker-compose run --rm --user $(id --user) dhall-yaml"
 fi
 ```
 

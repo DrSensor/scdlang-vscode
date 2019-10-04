@@ -1,4 +1,4 @@
-FROM busybox:glibc as dhall
+FROM bash
 
 ADD \
     https://glare.now.sh/dhall-lang/dhall-haskell/dhall-[0-9.]+-x86_64-linux.tar.bz2        \
@@ -7,10 +7,5 @@ ADD \
     /tmp/
 
 RUN for file in /tmp/*; do  \
-        tar xjvf "$file";    \
+        tar xvf "$file";    \
     done && rm -r /tmp/*
-
-
-FROM gcr.io/distroless/cc
-
-COPY --from=dhall /bin/dhall* /bin/

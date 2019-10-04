@@ -10,7 +10,7 @@ services:
 
   bat:
     image: bat
-    build: { context: docker, dockerfile: syntect.dockerfile }
+    build: { context: ., dockerfile: docker/syntect.dockerfile }
     entrypoint: [bat]
     environment: { HOME: /root }
     volumes:
@@ -25,17 +25,20 @@ services:
     volumes:
       - ./dist/syntect:/dist/syntect:rw
 
-  # The service name is same as `subl --command <name>` for converting .tmLanguage
-  convert_syntax:
-    build: { context: docker, dockerfile: sublime.dockerfile }
-    entrypoint: [./bin/sublime_syntax_convertor]
-    command: [/dist/Scdlang.tmLanguage]
+  dhall-yaml:
+    depends_on: [dhall]
+    image: dhall
+    network_mode: host
+    entrypoint: [dhall2yaml]
+    command: [--omitEmpty, --file, syntaxes/Scdlang.sublime-syntax.dhall, dist/Scdlang.sublime-syntax]
     volumes:
+      - ./scripts/dhall2yaml.sh:/bin/dhall2yaml:ro
       - ./dist:/dist:rw
+      - ./syntaxes:/syntaxes:ro
 
   dhall:
     image: dhall
-    build: { context: docker, dockerfile: dhall.dockerfile }
+    build: { context: ., dockerfile: docker/dhall.dockerfile }
     network_mode: host
     entrypoint: [dhall]
     volumes:
