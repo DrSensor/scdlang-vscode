@@ -1,5 +1,13 @@
 # Task runner for developing Scdlang syntax highlighting
 
+## watch
+### watch view (cmd) (file)
+> Print without close
+
+```sh
+watchexec -c "mask view $cmd $file" -w syntaxes
+```
+
 ## view
 
 ### view dhall (file)
@@ -61,7 +69,7 @@ docker-compose up --no-start
 run_and_inspect() { $1 && ./scripts/print.sh dist/Scdlang.tmLanguage.json; }
 
 if which dhall-to-json 2>/dev/null; then
-  run_and_inspect "dhall-to-json --file syntaxes/Scdlang.dhall --pretty --output dist/Scdlang.tmLanguage.json --omitEmpty"
+  run_and_inspect "dhall-to-json --file syntaxes/Scdlang.tmLanguage.dhall --pretty --output dist/Scdlang.tmLanguage.json --omitEmpty"
 else
   run_and_inspect "docker-compose run --rm --user $(id --user) dhall-json"
 fi

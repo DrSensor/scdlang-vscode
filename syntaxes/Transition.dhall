@@ -1,8 +1,8 @@
-let _ = {=}
-  let Text/default = https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelude/Text/default sha256:e26d120fe57a4b61259d1149d938a66d335e1eb263196c30311c117073e4f92f ? https://raw.githubusercontent.com/dhall-lang/dhall-lang/master/Prelude/Text/default
-  let List/null = https://prelude.dhall-lang.org/List/null sha256:2338e39637e9a50d66ae1482c0ed559bbcc11e9442bfca8f8c176bbcd9c4fc80 ? https://prelude.dhall-lang.org/List/null
+let Prelude = https://prelude.dhall-lang.org/package.dhall sha256:771c7131fc87e13eb18f770a27c59f9418879f7e230ba2a50e46f4461f43ec69 ? https://prelude.dhall-lang.org/package.dhall
+  let Text/default = Prelude.Text.default
+  let List/null = Prelude.List.null
   let List/empty = λ(a: Type) -> [] : List a
-  let Optional/null = https://prelude.dhall-lang.org/Optional/null sha256:efc43103e49b56c5bf089db8e0365bbfc455b8a2f0dc6ee5727a3586f85969fd ? https://prelude.dhall-lang.org/Optional/null
+  let Optional/null = Prelude.Optional.null
   let Text/head = λ(text: List Text) -> Text/default (List/head Text text)
   let Text/head/empty = λ(text: List Text) -> Optional/null Text (List/head Text text)
   let Text/last = λ(text: List Text) -> Text/default (List/last Text text)
@@ -16,14 +16,16 @@ let Syntax = ./Syntax.dhall
   let guard  = Syntax.naming.camelCase
   let action = Syntax.naming.camelCase
 
-let Prelude = ./Prelude.dhall
-  let Pair = Prelude.util.Pair
-    let Pair/required = Prelude.util.Pair/required
-    let Pair/optional = Prelude.util.Pair/optional
-    let Pair/group = Prelude.util.Pair/group
-    let Pair/group/required = Prelude.util.Pair/group/required
-    let Pair/group/optional = Prelude.util.Pair/group/optional
-  let capture/from = Prelude.pattern.capture/from
+let Textmate = ./Prelude.dhall
+  let Target = Textmate.Target
+  let LineMatch = Textmate.pattern.LineMatch
+  let Pair = Textmate.util.Pair
+    let Pair/required = Textmate.util.Pair/required
+    let Pair/optional = Textmate.util.Pair/optional
+    let Pair/group = Textmate.util.Pair/group
+    let Pair/group/required = Textmate.util.Pair/group/required
+    let Pair/group/optional = Textmate.util.Pair/group/optional
+  let capture/from = Textmate.pattern.capture/from
 
 let Direction = < Left | Right | Both >
 let Pair/stateFrom = λ(type: State) -> λ(match: Text)
@@ -45,23 +47,28 @@ let action = [
   let action/optional = Pair/group/optional "\\s*" action
   let action/required = Pair/group/required "\\s*" action
 
-let internal-transition/withState = λ(withState: Bool) -> λ(brackets: List Text) ->
+let internal-transition/withState = λ(target: Target) -> λ(withState: Bool) -> λ(brackets: List Text) ->
   let currentScope = if List/null Text brackets
     then Syntax.scope.state State.From
     else Syntax.scope.state State.Loop
   let pairState = if withState then [Pair/required state currentScope] else List/empty Pair
-  let bracket = {
-    open = if Text/head/empty brackets
-      then List/empty Pair else [Pair/required (Text/head brackets) "keyword.operator"],
-    close = if Natural/odd (List/length Text brackets)
-      then List/empty Pair else [Pair/required (Text/last brackets) "keyword.operator"]
-  } in λ(scope: Text) -> capture/from 0 scope "\\s*"
-    (pairState # bracket.open 
-        # event/required Event.Internal
-        # action/required
-    # bracket.close)
+  let bracket/open = if Text/head/empty brackets
+    then List/empty Pair
+    else [Pair/required (Text/head brackets) "keyword.operator"]
+  let bracket/close = if Natural/odd (List/length Text brackets)
+    then List/empty Pair
+    else [Pair/required (Text/last brackets) "keyword.operator"]
+  in λ(scope: Text) ->
+    let matches = capture/from target 0 scope "\\s*" (pairState # bracket/open 
+      # event/required Event.Internal
+      # action/required
+    # bracket/close)
+  in merge {
+    TextMate = LineMatch.TextMate matches,
+    Sublime = LineMatch.Sublime [matches]
+  } target
 
-let transition-from = λ(leftState: Optional Text) -> λ(type: Event) ->
+let transition-from = λ(target: Target) -> λ(leftState: Optional Text) -> λ(type: Event) ->
   let State/Into = merge
     { Loop = State.Loop, External = State.Into, Internal = State.From } type
   in λ(regex: Text) -> λ(arrow: Direction) ->
@@ -69,38 +76,43 @@ let transition-from = λ(leftState: Optional Text) -> λ(type: Event) ->
     let lhs = merge { Left = State/Into, Right = State.From, Both = State/Into } arrow
     let firstPair = Optional/fold Text leftState
       (List Pair) (Pair/stateFrom lhs) (List/empty Pair)
-  in λ(scope: Text) -> capture/from 0 scope "\\s*" (firstPair # [
+  in λ(scope: Text) ->
+    let matches = capture/from target 0 scope "\\s*" (firstPair # [
       Pair/required regex (Syntax.scope.operator.arrow),
       Pair/required state (Syntax.scope.state rhs)
-  ] # event/optional type # action/optional)
+    ] # event/optional type # action/optional)
+  in merge {
+    TextMate = LineMatch.TextMate matches,
+    Sublime = LineMatch.Sublime [matches]
+  } target
 
-let normal-transition = λ(arrow: Direction) -> λ(symbol: Text) -> λ(scope: Text)
-  -> transition-from (Some state) Event.External symbol arrow scope
+let normal-transition = λ(target: Target) -> λ(arrow: Direction) -> λ(symbol: Text) -> λ(scope: Text)
+  -> transition-from target (Some state) Event.External symbol arrow scope
 
-let loop-transition = λ(arrow: Direction) -> λ(symbol: Text) -> λ(scope: Text)
-  -> transition-from (Some state) Event.Loop symbol arrow scope
+let loop-transition = λ(target: Target) -> λ(arrow: Direction) -> λ(symbol: Text) -> λ(scope: Text)
+  -> transition-from target (Some state) Event.Loop symbol arrow scope
 
-let self-transition = λ(arrow: Direction) -> λ(symbol: Text) -> λ(scope: Text)
-  -> transition-from (None Text) Event.Loop symbol arrow scope
+let self-transition = λ(target: Target) -> λ(arrow: Direction) -> λ(symbol: Text) -> λ(scope: Text)
+  -> transition-from target (None Text) Event.Loop symbol arrow scope
 
-let internal-transition/currentState = λ(currentState: Bool) -> λ(scope: Text)
-  -> internal-transition/withState currentState (List/empty Text) scope
+let internal-transition/currentState = λ(target: Target) -> λ(currentState: Bool) -> λ(scope: Text)
+  -> internal-transition/withState target currentState (List/empty Text) scope
 
-let internal-transition/noTarget = λ(arrow: Text) -> λ(scope: Text)
-  -> internal-transition/withState False [arrow] scope
+let internal-transition/noTarget = λ(target: Target) -> λ(arrow: Text) -> λ(scope: Text)
+  -> internal-transition/withState target False [arrow] scope
 
-let internal-transition/withTarget = λ(brackets: List Text) -> λ(scope: Text)
-  -> internal-transition/withState True brackets scope
+let internal-transition/withTarget = λ(target: Target) -> λ(brackets: List Text) -> λ(scope: Text)
+  -> internal-transition/withState target True brackets scope
 
-in {
-  transition-into   = normal-transition Direction.Right "-+>"       "transition.normal",
-  transition-from   = normal-transition Direction.Left  "<-+"       "transition.normal",
-  toggle-transition = normal-transition Direction.Both  "<-+>"      "transition.toggle",
-  self-transition   = self-transition   Direction.Right "-+>>"      "transition.loop",
-  loop-from         = loop-transition   Direction.Left  "<<-+|<-+<" "transition.loop",
-  loop-into         = loop-transition   Direction.Right "-+>>"      "transition.loop",
-  state-internal-transition  = internal-transition/currentState True          "transition.internal",
-  parent-internal-transition = internal-transition/currentState False         "transition.internal",
-  skipper-transition         = internal-transition/withTarget   ["<-+<", ">"] "transition.internal",
-  root-internal-transition   = internal-transition/noTarget     "<-+<"        "transition.internal"
+in λ(target: Target) -> {
+  transition-into   = normal-transition target Direction.Right "-+>"       "transition.normal",
+  transition-from   = normal-transition target Direction.Left  "<-+"       "transition.normal",
+  toggle-transition = normal-transition target Direction.Both  "<-+>"      "transition.toggle",
+  self-transition   = self-transition   target Direction.Right "-+>>"      "transition.loop",
+  loop-from         = loop-transition   target Direction.Left  "<<-+|<-+<" "transition.loop",
+  loop-into         = loop-transition   target Direction.Right "-+>>"      "transition.loop",
+  state-internal-transition  = internal-transition/currentState target True          "transition.internal",
+  parent-internal-transition = internal-transition/currentState target False         "transition.internal",
+  skipper-transition         = internal-transition/withTarget   target ["<-+<", ">"] "transition.internal",
+  root-internal-transition   = internal-transition/noTarget     target "<-+<"        "transition.internal"
 }

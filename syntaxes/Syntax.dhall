@@ -1,7 +1,8 @@
-let Text/concatMapSep = https://prelude.dhall-lang.org/Text/concatMapSep sha256:c272aca80a607bc5963d1fcb38819e7e0d3e72ac4d02b1183b1afb6a91340840 ? https://prelude.dhall-lang.org/Text/concatMapSep
+let Prelude = https://prelude.dhall-lang.org/package.dhall sha256:771c7131fc87e13eb18f770a27c59f9418879f7e230ba2a50e46f4461f43ec69 ? https://prelude.dhall-lang.org/package.dhall
+  let Text/concatMapSep = Prelude.Text.concatMapSep
 
 let Textmate = ./Prelude.dhall
-let Scope/from = Textmate.util.Scope/from
+  let Scope/from = Textmate.util.Scope/from
 
 let lang = Textmate.scopeLanguage
 let State = < From | Into | Loop >
