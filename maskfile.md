@@ -62,6 +62,42 @@ docker-compose up --no-start
 ## build
 > Please run `prepare build` before running this tasks ⚠
 
+### build dhall (extension)
+
+```sh
+if which dhall 2>/dev/null; then
+  dhall --file syntaxes/Scdlang.$extension.dhall > dist/Scdlang.$extension.dhall
+else
+  docker-compose run --rm --user $(id --user) dhall --file syntaxes/Scdlang.$extension.dhall > dist/Scdlang.$extension.dhall
+fi
+
+[ $? -eq 0 ] && ./scripts/print.sh dist/Scdlang.$extension.dhall
+```
+
+#### build dhall encode (extension)
+> Generate textmate grammar to be used in VSCode
+
+```sh
+if which dhall 2>/dev/null; then
+  ./scripts/dhall-encode.sh --input syntaxes/Scdlang.$extension.dhall --output dist/Scdlang.DHALL-$extension.bin
+else
+  docker-compose run --rm --user $(id --user) dhall-encode
+fi
+```
+
+#### build dhall type (extension)
+> Generate textmate grammar to be used in VSCode
+
+```sh
+if which dhall 2>/dev/null; then
+  dhall type --file syntaxes/Scdlang.$extension.dhall > dist/Scdlang.$extension.schema.dhall
+else
+  docker-compose run --rm --user $(id --user) --entrypoint=bash dhall -c "dhall type --file syntaxes/Scdlang.$extension.dhall > dist/Scdlang.$extension.schema.dhall"
+fi
+
+[ $? -eq 0 ] && ./scripts/print.sh dist/Scdlang.$extension.schema.dhall
+```
+
 ### build vscode
 > Generate textmate grammar to be used in VSCode
 

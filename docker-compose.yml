@@ -33,6 +33,7 @@ services:
     command: [--omitEmpty, --file, syntaxes/Scdlang.sublime-syntax.dhall, dist/Scdlang.sublime-syntax]
     volumes:
       - ./scripts/dhall2yaml.sh:/bin/dhall2yaml:ro
+      - $HOME/.cache:/.cache:rw
       - ./dist:/dist:rw
       - ./syntaxes:/syntaxes:ro
 
@@ -42,9 +43,22 @@ services:
     network_mode: host
     entrypoint: [dhall]
     volumes:
+      - $HOME/.cache:/.cache:rw
       - ./dist:/dist:rw
       - ./syntaxes:/syntaxes:ro
-  
+
+  dhall-encode:
+    image: dhall
+    build: { context: ., dockerfile: docker/dhall.dockerfile }
+    network_mode: host
+    entrypoint: [dhall-encode]
+    command: [--input, syntaxes/Scdlang.$extension.dhall, --output, dist/Scdlang.DHALL-$extension.bin]
+    volumes:
+      - ./scripts/dhall-encode.sh:/bin/dhall-encode:ro
+      - $HOME/.cache:/.cache:rw
+      - ./dist:/dist:rw
+      - ./syntaxes:/syntaxes:ro
+
   dhall-json:
     depends_on: [dhall]
     image: dhall
@@ -52,6 +66,7 @@ services:
     entrypoint: [dhall-to-json]
     command: [--file, syntaxes/Scdlang.tmLanguage.dhall, --pretty, --output, dist/Scdlang.tmLanguage.json, --omitEmpty]
     volumes:
+      - $HOME/.cache:/.cache:rw
       - ./dist:/dist:rw
       - ./syntaxes:/syntaxes:ro
 
