@@ -70,7 +70,7 @@ jobs:
 
     #region upload to github-releases
     - name: Install hub.github.com #TODO: replace this... (https://github.com/actions/virtual-environments/issues/1#issuecomment-537105957)
-      run: wget -nv -O- https://github.com/github/hub/releases/download/v2.12.7/hub-linux-amd64-2.12.7.tgz  | tar xz --strip-components=1 '*/bin/hub'
+      run: wget -nv -O- 'https://glare.now.sh/github/hub/.*linux-amd64.*.tgz' | tar xz --wildcards --strip-components=1 '*/bin/hub'
     - run: hub --version
     - name: Releases
       if: contains(github.ref, 'refs/tags')
