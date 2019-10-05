@@ -58,8 +58,17 @@ jobs:
     #endregion Build, name: create .tmLanguage.json }
 
     - uses: actions/upload-artifact@master
-      if: github.event_name == 'pull_request' || endsWith(github.ref, 'master') || endsWith(github.base_ref, 'master')
       with: { name: '${{ matrix.target }}', path: dist }
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/download-artifact@master
+      with: { name: tmLanguage, path: dist }
+    - uses: actions/download-artifact@master
+      with: { name: sublime-syntax, path: dist }
+    - run: ls -lshaR dist
     - name: Releases
       if: contains(github.ref, 'refs/tags')
       #TODO: ...with actions/github-script WHEN STABLE (https://github.com/actions/virtual-environments/issues/1#issuecomment-537105957)
