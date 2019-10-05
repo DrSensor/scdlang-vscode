@@ -16,17 +16,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [tmLanguage, sublime-syntax]
+        include:
+        - { target: tmLanguage,     extension: json }
+        - { target: sublime-syntax, extension: yaml }
     steps:
     #region Preparation
-    - name: Install hub.github.com
+    - name: Install hub.github.com #TODO: replace this... (https://github.com/actions/virtual-environments/issues/1#issuecomment-537105957)
       run: |-
+        # FIXME: simplify this with https://github.com/github/hub/issues/2249#issuecomment-536557540
         wget -nv 'https://glare.now.sh/github/hub/.*linux-amd64.*.tgz' -O /tmp/hub-latest.tgz
         mkdir hub-latest && tar xf /tmp/hub-latest.tgz --strip=1 -C hub-latest
         cd hub-latest && sudo ./install
         rm -r ../hub-latest /tmp/*.tgz
         hub --version
-    - run: sudo npm install --global pnpm
-
     - uses: actions/checkout@v1
     - name: Prepare **dist** folder
       run: |-
@@ -36,17 +41,29 @@ jobs:
     #endregion Preparation
 
     #region Build
-    - { run: docker-compose run --rm --user $(id --user) dhall-json,            name: create Scdlang.tmLanguage.json }
-    - { run: pnpm i && ./scripts/json2plist.js dist/Scdlang.tmLanguage.json -,  name: create Scdlang.tmLanguage      }
-    - { run: docker-compose run --rm --user $(id --user) dhall-yaml,            name: create Scdlang.sublime-syntax  }
-    - { run: docker-compose run --rm --user $(id --user) packdump,              name: create syntaxes.bin            }
+    - name: build Scdlang.$extension.dhall
+      run: docker-compose run --rm --user $(id --user) dhall-${{ matrix.extension }}
+    - name: create Scdlang.tmLanguage
+      if: matrix.target == 'tmLanguage'
+      run: sudo npm i -g pnpm && pnpm i && ./scripts/json2plist.js dist/Scdlang.${{ matrix.target }}.json -
+    - name: create syntaxes.bin
+      if: matrix.target == 'sublime-syntax'
+      run: docker-compose run --rm --user $(id --user) packdump
+    - name: create Scdlang.DHALL-$extension.bin
+      run: extension=${{ matrix.target }} docker-compose run --rm --user $(id --user) dhall-encode
+    - name: create Scdlang.$extension.schema.dhall
+      run: >-
+        docker-compose run --rm --user $(id --user) --entrypoint=bash dhall -c
+        "dhall type --file syntaxes/Scdlang.${{ matrix.target }}.dhall > dist/Scdlang.${{ matrix.target }}.schema.dhall"
     #endregion Build, name: create .tmLanguage.json }
 
     - uses: actions/upload-artifact@master
-      if: github.event_name == 'pull_request' || endsWith(github.ref, 'master')
-      with: { name: grammar, path: dist }
+      if: github.event_name == 'pull_request' || endsWith(github.ref, 'master') || endsWith(github.base_ref, 'master')
+      with: { name: '${{ matrix.target }}', path: dist }
     - name: Releases
       if: contains(github.ref, 'refs/tags')
+      #TODO: ...with actions/github-script WHEN STABLE (https://github.com/actions/virtual-environments/issues/1#issuecomment-537105957)
+      # but first, seprate this in another job and simplify --attach
       run: >-
         git for-each-ref --format="%(contents:subject)%0a%0a%(contents:body)"
         ${{ github.ref }} | hub release create -F- --draft
