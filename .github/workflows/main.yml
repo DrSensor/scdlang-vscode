@@ -8,10 +8,10 @@ on:
     - '*.dockerfile'
     - '*.dhall'
     - 'examples/*'
-    - scripts/*
+    - 'scripts/*'
   push:
-    branches: ['*', '*/*', '*/*/*'] #cuz https://golang.org/pkg/path/#Match doesn't support globstar 😢
-    tags: ['v?*.*.*']               #and it doesn't support regex \d or alike
+    branches: ['**']
+    tags: ['v?[0-9]+.[0-9]+.[0-9]+*']
 
 jobs:
   build:
