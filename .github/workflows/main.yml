@@ -59,14 +59,15 @@ jobs:
       with: { name: '${{ matrix.target }}', path: dist }
 
   publish:
+    if: contains(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     needs: build
     steps:
+    - uses: actions/checkout@v1
     - uses: actions/download-artifact@master
       with: { name: tmLanguage, path: dist }
     - uses: actions/download-artifact@master
       with: { name: sublime-syntax, path: dist }
-    - run: ls -lshaR dist
 
     #region upload to github-releases
     - name: Install hub.github.com #TODO: replace this... (https://github.com/actions/virtual-environments/issues/1#issuecomment-537105957)
@@ -74,16 +75,11 @@ jobs:
         wget -nv -O- 'https://glare.now.sh/github/hub/.*linux-amd64.*.tgz' | tar xz --wildcards --strip-components=1 '*/bin/hub'
         sudo install -m 755 bin/hub /usr/local/bin/hub && rm -r bin
     - run: hub --version && ls -lshaR .
-    - name: Releases
-      if: contains(github.ref, 'refs/tags')
-      #TODO: ...with actions/github-script WHEN STABLE (https://github.com/actions/virtual-environments/issues/1#issuecomment-537105957)
-      run: >-
-        git for-each-ref --format="%(contents:subject)%0a%0a%(contents:body)"
-        ${{ github.ref }} | hub release create -F- --draft
-        --attach dist/Scdlang.tmLanguage.json
-        --attach dist/Scdlang.tmLanguage
-        --attach dist/Scdlang.sublime-syntax
-        --attach dist/syntect/syntaxes.bin
-        ${GITHUB_REF##*/}
+    - name: Releases #TODO: ...with actions/github-script WHEN STABLE (https://github.com/actions/virtual-environments/issues/1#issuecomment-537105957)
+      run: |-
+        git for-each-ref --format="%(contents:subject)%0a%0a%(contents:body)" ${{ github.ref }} > change.log
+        attachments=$(find dist -type f | sed -e 's/^/--attach /')
+
+        hub release create --file change.log --draft ${attachments} ${GITHUB_REF##*/}
       env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
     #endregion upload to github-releases
