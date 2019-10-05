@@ -45,10 +45,16 @@ jobs:
       run: docker-compose run --rm --user $(id --user) dhall-${{ matrix.extension }}
     - name: create Scdlang.tmLanguage
       if: matrix.target == 'tmLanguage'
-      run: sudo npm i -g pnpm && pnpm i && ./scripts/json2plist.js dist/Scdlang.${{ matrix.target }}.json -
-    - name: create syntaxes.bin
+      run: |-
+        sudo npm install ---global pnpm
+        pnpm install
+        ./scripts/json2plist.js dist/Scdlang.${{ matrix.target }}.json -
+    - name: create syntect.packdump
       if: matrix.target == 'sublime-syntax'
-      run: docker-compose run --rm --user $(id --user) packdump
+      run: |-
+        docker-compose run --rm --user $(id --user) packdump
+        mv dist/syntect/syntaxes.bin dist/syntect.packdump
+        rm -r dist/syntect
     - name: create Scdlang.DHALL-$extension.bin
       run: extension=${{ matrix.target }} docker-compose run --rm --user $(id --user) dhall-encode
     - name: create Scdlang.$extension.schema.dhall
