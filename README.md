@@ -4,7 +4,7 @@ This extension provide syntax highlighting support for [Scdlang][] language.
 
 ## Showcase
 
-<details><summary><code>bat --theme "Monokai Extended"</code></summary>
+<details open><summary><code>bat --theme "Monokai Extended"</code></summary>
 
 ![bat preview](https://user-images.githubusercontent.com/4953069/65954749-c723e800-e470-11e9-901e-49e6e0167dd1.png)
 </details>
