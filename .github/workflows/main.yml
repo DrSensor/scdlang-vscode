@@ -24,7 +24,7 @@ jobs:
         - { target: sublime-syntax, extension: yaml }
     steps:
     #region Preparation
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Prepare **dist** folder
       run: |-
         mkdir -p dist/rules
@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - uses: actions/download-artifact@master
       with: { name: tmLanguage, path: dist }
     - uses: actions/download-artifact@master
